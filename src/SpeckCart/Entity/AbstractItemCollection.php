@@ -4,7 +4,7 @@ namespace SpeckCart\Entity;
 use \Iterator;
 use \Countable;
 
-abstract class AbstractItemCollection implements ItemCollectionInterface
+abstract class AbstractItemCollection implements LineItemCollectionInterface
 {
     /**
      * @var array
@@ -26,33 +26,33 @@ abstract class AbstractItemCollection implements ItemCollectionInterface
         $this->setItems($items);
     }
 
-    public function addItem(CartItemInterface $item)
+    public function addLineItem(LineItemInterface $item)
     {
-        if ($item->getCartItemId() == null) {
+        if ($item->getLineItemId() == null) {
             $this->items[] = $item;
         } else {
-            $this->items[$item->getCartItemId()] = $item;
+            $this->items[$item->getLineItemId()] = $item;
         }
         return $this;
     }
 
-    public function addItems(array $items)
+    public function addLineItems(array $items)
     {
         foreach ($items as $i) {
-            if ($i->getCartItemId() == null) {
+            if ($i->getLineItemId() == null) {
                 $this->items[] = $i;
             } else {
-                $this->items[$i->getCartItemId()] = $i;
+                $this->items[$i->getLineItemId()] = $i;
             }
         }
 
         return $this;
     }
 
-    public function removeItem($itemOrItemId)
+    public function removeLineItem($itemOrItemId)
     {
-        if ($itemOrItemId instanceof CartItemInterface) {
-            $itemOrItemId = $itemOrItemId->getCartItemId();
+        if ($itemOrItemId instanceof LineItemInterface) {
+            $itemOrItemId = $itemOrItemId->getLineItemId();
         }
         if (isset($this->items[$itemOrItemId])) {
             unset($this->items[$itemOrItemId]);
@@ -61,7 +61,7 @@ abstract class AbstractItemCollection implements ItemCollectionInterface
         return $this;
     }
 
-    public function setItems(array $items)
+    public function setLineItems(array $items)
     {
         $this->items = array();
         $this->addItems($items);

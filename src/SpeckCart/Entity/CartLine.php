@@ -4,7 +4,7 @@ namespace SpeckCart\Entity;
 
 use DateTime;
 
-class CartItem extends AbstractItemCollection implements CartItemInterface
+class CartLine extends AbstractItemCollection implements CartLineInterface
 {
     protected $cartItemId;
     protected $cartId;
