@@ -13,6 +13,7 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
      */
     protected $lineItems = array();
 
+    protected $lineItemsTmp = array();
     /**
      * constructor
      *
@@ -23,19 +24,32 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
         $this->setLineItems($items);
     }
 
+    protected function reindexLineItems()
+    {
+        foreach ($this->lineItemsTmp as $key => $item) {
+            if($item->getLineItemId()) {
+                $this->lineItems[$item->getLineItemId()] = $item;
+                unset($this->lineItemsTmp[$key]);
+            }
+        }
+    }
+
     public function addLineItem(LineItemInterface $item)
     {
-        // ensure line with same id is replaced
-        if (null != $item->getLineItemId()) {
-            $this->removeLineItem($item->getLineItemId());
-        }
-
         // inject this object as parent if it is line item
         if ($this instanceof LineItemInterface) {
             $item->setParent($this);
         }
 
-        $this->lineItems[spl_object_hash($item)] = $item;
+        // ensure line with same id is replaced
+        if (null == $item->getLineItemId()) {
+            $this->lineItemsTmp[spl_object_hash($item)] = $item;
+            return $this;
+        }
+
+        $this->reindexLineItems();
+
+        $this->lineItems[$item->getLineItemId()] = $item;
         return $this;
     }
 
@@ -54,24 +68,14 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
             //if line item have no id, just remove object
             if (!$item->getLineItemId()) {
                 $hash = spl_object_hash($itemOrItemId);
-                unset($this->lineItems[$hash]);
+                unset($this->lineItemsTmp[$hash]);
                 return $this;
             }
             $itemOrItemId = $item->getLineItemId();
         }
 
-        if (!(is_numeric($itemOrItemId) || is_string($itemOrItemId)) || empty($itemOrItemId)) {
-            throw new InvalidArgumentException('Line item id must be non-empty numeric value or string');
-        }
-
-        // keep items whose ids are not equal to specified
-        $this->lineItems = array_filter(
-            $this->lineItems,
-            function($lineItem) use ($itemOrItemId) {
-                // use string comparison in case id is not numeric
-                return (string)$lineItem->getLineItemId() !== (string)$itemOrItemId;
-            }
-        );
+        $this->reindexLineItems();
+        unset($this->lineItems[$itemOrItemId]);
         return $this;
     }
 
@@ -83,9 +87,10 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
         return $this;
     }
 
-    public function getItems()
+    public function getLineItems()
     {
-        return $this->items;
+        $this->reindexLineItems();
+        return array_merge($this->lineItems, $this->lineItemsTmp);
     }
 
     /**
@@ -96,7 +101,7 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
      */
     public function count()
     {
-        return count($this->lineItems);
+        return count($this->getLineItems());
     }
 
     /**
@@ -107,6 +112,6 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->lineItems);
+        return new ArrayIterator($this->getLineItems());
     }
 }
