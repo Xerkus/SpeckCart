@@ -1,20 +1,17 @@
 <?php
 namespace SpeckCart\Entity;
 
-use \Iterator;
+use \IteratorAggregate;
+use \ArrayIterator;
 use \Countable;
+use \InvalidArgumentException;
 
 abstract class AbstractItemCollection implements LineItemCollectionInterface
 {
     /**
      * @var array
      */
-    protected $items = array();
-
-    /**
-     * @var object
-     */
-    protected $parent = null;
+    protected $lineItems = array();
 
     /**
      * constructor
@@ -23,27 +20,29 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
      */
     public function __construct(array $items = array())
     {
-        $this->setItems($items);
+        $this->setLineItems($items);
     }
 
     public function addLineItem(LineItemInterface $item)
     {
-        if ($item->getLineItemId() == null) {
-            $this->items[] = $item;
-        } else {
-            $this->items[$item->getLineItemId()] = $item;
+        // ensure line with same id is replaced
+        if (null != $item->getLineItemId()) {
+            $this->removeLineItem($item->getLineItemId());
         }
+
+        // inject this object as parent if it is line item
+        if ($this instanceof LineItemInterface) {
+            $item->setParent($this);
+        }
+
+        $this->lineItems[spl_object_hash($item)] = $item;
         return $this;
     }
 
     public function addLineItems(array $items)
     {
-        foreach ($items as $i) {
-            if ($i->getLineItemId() == null) {
-                $this->items[] = $i;
-            } else {
-                $this->items[$i->getLineItemId()] = $i;
-            }
+        foreach ($items as $item) {
+            $this->addLineItem($item);
         }
 
         return $this;
@@ -52,19 +51,34 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
     public function removeLineItem($itemOrItemId)
     {
         if ($itemOrItemId instanceof LineItemInterface) {
-            $itemOrItemId = $itemOrItemId->getLineItemId();
-        }
-        if (isset($this->items[$itemOrItemId])) {
-            unset($this->items[$itemOrItemId]);
+            //if line item have no id, just remove object
+            if (!$item->getLineItemId()) {
+                $hash = spl_object_hash($itemOrItemId);
+                unset($this->lineItems[$hash]);
+                return $this;
+            }
+            $itemOrItemId = $item->getLineItemId();
         }
 
+        if (!(is_numeric($itemOrItemId) || is_string($itemOrItemId)) || empty($itemOrItemId)) {
+            throw new InvalidArgumentException('Line item id must be non-empty numeric value or string');
+        }
+
+        // keep items whose ids are not equal to specified
+        $this->lineItems = array_filter(
+            $this->lineItems,
+            function($lineItem) use ($itemOrItemId) {
+                // use string comparison in case id is not numeric
+                return (string)$lineItem->getLineItemId() !== (string)$itemOrItemId;
+            }
+        );
         return $this;
     }
 
     public function setLineItems(array $items)
     {
-        $this->items = array();
-        $this->addItems($items);
+        $this->lineItems = array();
+        $this->addLineItems($items);
 
         return $this;
     }
@@ -74,43 +88,25 @@ abstract class AbstractItemCollection implements LineItemCollectionInterface
         return $this->items;
     }
 
+    /**
+     * count
+     *
+     * @see Countable
+     * @return integer
+     */
     public function count()
     {
-        return count($this->items);
+        return count($this->lineItems);
     }
 
-    public function current()
+    /**
+     * getIterator
+     *
+     * @see IteratorAggregate
+     * @return ArrayIterator
+     */
+    public function getIterator()
     {
-        return current($this->items);
-    }
-
-    public function key()
-    {
-        return key($this->items);
-    }
-
-    public function next()
-    {
-        next($this->items);
-    }
-
-    public function rewind()
-    {
-        reset($this->items);
-    }
-
-    public function valid()
-    {
-        return current($this->items) !== false;
-    }
-
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
+        return new ArrayIterator($this->lineItems);
     }
 }

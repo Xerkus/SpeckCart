@@ -20,4 +20,6 @@ interface CartLineInterface extends LineItemInterface
      * @return CartItemInterface
      */
     public function setCartId($cartId);
+
+    public function setTotalTaxAmount($tax);
 }
