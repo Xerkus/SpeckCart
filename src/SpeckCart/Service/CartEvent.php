@@ -8,19 +8,19 @@ use Zend\EventManager\Event;
 
 class CartEvent extends Event
 {
-    const EVENT_ADD_ITEM         = 'addItem';
-    const EVENT_ADD_ITEM_POST    = 'addItem.post';
-    const EVENT_REMOVE_ITEM      = 'removeItem';
-    const EVENT_REMOVE_ITEM_POST = 'removeItem.post';
+    const EVENT_ADD_LINE         = 'addLine';
+    const EVENT_ADD_LINE_POST    = 'addLine.post';
+    const EVENT_REMOVE_LINE      = 'removeLine';
+    const EVENT_REMOVE_LINE_POST = 'removeLine.post';
 
     public function setCartLine(CartLineInterface $cartItem)
     {
-        $this->setParam('cartitem', $cartItem);
+        $this->setParam('cartline', $cartItem);
         return $this;
     }
 
     public function getCartLine()
     {
-        return $this->getParam('cartitem');
+        return $this->getParam('cartline');
     }
 }

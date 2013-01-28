@@ -23,8 +23,7 @@ class CartMapperZendDb extends AbstractDbMapper implements CartMapperInterface
 
     public function findById($cartId)
     {
-        $select = new Select;
-        $select->from($this->tableName);
+        $select = $this->getSelect();
 
         $where = new Where;
         $where->equalTo($this->cartIdField, $cartId);
@@ -39,9 +38,9 @@ class CartMapperZendDb extends AbstractDbMapper implements CartMapperInterface
             $where = new Where;
             $where->equalTo($this->cartIdField, $cart->getCartId());
 
-            $this->update($cart, $where, $this->tableName);
+            $this->update($cart, $where);
         } else {
-            $result = $this->insert($cart, $this->tableName);
+            $result = $this->insert($cart);
             $cart->setCartId($result->getGeneratedValue());
         }
 

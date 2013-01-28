@@ -2,9 +2,9 @@
 
 namespace SpeckCart\Mapper;
 
-use SpeckCart\Entity\CartItemInterface;
+use SpeckCart\Entity\CartLineInterface;
 
-interface CartItemMapperInterface
+interface CartLineMapperInterface
 {
     public function findById($cartItemId);
 
@@ -12,5 +12,5 @@ interface CartItemMapperInterface
 
     public function deleteById($cartItemId);
 
-    public function persist(CartItemInterface $item);
+    public function persist(CartLineInterface $item);
 }

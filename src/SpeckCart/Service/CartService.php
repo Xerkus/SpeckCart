@@ -82,7 +82,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
     public function onAddItem(Event $e)
     {
         $this->addItemToCart($e->getCartLine());
-        $this->getEventManager()->trigger(CartEvent::EVENT_ADD_ITEM_POST, $this, $e->getParams());
+        $this->getEventManager()->trigger(CartEvent::EVENT_ADD_LINE_POST, $this, $e->getParams());
     }
 
     public function addItemToCart(CartLineInterface $item, CartInterface $cart = null)
@@ -129,8 +129,8 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
     public function attachDefaultListeners()
     {
         $events = $this->getEventManager();
-        $events->attach(CartEvent::EVENT_ADD_ITEM, array($this, 'onAddItem'));
-        //$events->attach(CartEvent::EVENT_REMOVE_ITEM, array($this, 'onRemoveItem'));
+        $events->attach(CartEvent::EVENT_ADD_LINE, array($this, 'onAddItem'));
+        //$events->attach(CartEvent::EVENT_REMOVE_LINE, array($this, 'onRemoveItem'));
     }
 
     public function getSessionManager()
