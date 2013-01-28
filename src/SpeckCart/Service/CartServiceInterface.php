@@ -3,18 +3,18 @@
 namespace SpeckCart\Service;
 
 use SpeckCart\Entity\CartInterface;
-use SpeckCart\Entity\CartItemInterface;
+use SpeckCart\Entity\CartLineInterface;
 
 interface CartServiceInterface
 {
     /**
      * Add an item to a cart
      *
-     * @param CartItemInterface item to add
+     * @param CartLineInterface item to add
      * @param CartInterface cart to modify -- default to current session's cart if null
      * @return CartServiceInterface
      */
-    public function addItemToCart(CartItemInterface $item, CartInterface $cart = null);
+    public function addItemToCart(CartLineInterface $item, CartInterface $cart = null);
 
     /**
      * Remove an item from a cart

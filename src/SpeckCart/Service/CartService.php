@@ -4,7 +4,7 @@ namespace SpeckCart\Service;
 
 use SpeckCart\Entity\Cart;
 use SpeckCart\Entity\CartInterface;
-use SpeckCart\Entity\CartItemInterface;
+use SpeckCart\Entity\CartLineInterface;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManager;
@@ -53,7 +53,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
             $cart = $this->cartMapper->findById($container->cartId);
             $items = $this->itemMapper->findByCartId($cart->getCartId());
 
-            $cart->setItems($items);
+            $cart->setLineItems($items);
         }
 
         return $cart;
@@ -74,18 +74,18 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         return $this->cartMapper->persist($cart);
     }
 
-    public function persistItem(CartItemInterface $item)
+    public function persistItem(CartLineInterface $item)
     {
         return $this->itemMapper->persist($item);
     }
 
     public function onAddItem(Event $e)
     {
-        $this->addItemToCart($e->getCartItem());
+        $this->addItemToCart($e->getCartLine());
         $this->getEventManager()->trigger(CartEvent::EVENT_ADD_ITEM_POST, $this, $e->getParams());
     }
 
-    public function addItemToCart(CartItemInterface $item, CartInterface $cart = null)
+    public function addItemToCart(CartLineInterface $item, CartInterface $cart = null)
     {
         if ($cart === null) {
             $cart = $this->getSessionCart(true);
@@ -95,23 +95,22 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
             ->setAddedTime(new \DateTime());
         $this->itemMapper->persist($item);
 
-        $this->persistCartItemChildren($item->getItems(), $item, $cart);
+        $this->persistCartLineChildren($item->getLineItems(), $item, $cart);
 
-        $cart->addItem($item);
+        $cart->addLineItem($item);
 
         return $this;
     }
 
-    protected function persistCartItemChildren(array $children, CartItemInterface $parent, CartInterface $cart)
+    protected function persistCartLineChildren(array $children, CartLineInterface $parent, CartInterface $cart)
     {
         foreach ($children as $i) {
             $i->setCartId($cart->getCartId())
                 ->setAddedTime(new \DateTime())
-                ->setParentItemId($parent->getCartItemId())
-                ->setParent($parent);
+                ->setParentLine($parent);
 
             $this->itemMapper->persist($i);
-            $this->persistCartItemChildren($i->getItems(), $i, $cart);
+            $this->persistCartLineChildren($i->getLineItems(), $i, $cart);
         }
     }
 

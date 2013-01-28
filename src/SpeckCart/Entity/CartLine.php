@@ -37,14 +37,9 @@ class CartLine extends AbstractLineItem implements CartLineInterface
         return $price;
     }
 
-    // @todo item removal restricted, i need to figure out why.
-    public function removeLineItem(LineItemInterface $item)
+    public function removeLineItem($itemOrItemId)
     {
         throw new \Exception("not implemented");
     }
 
-    public function findAndRemoveLineItem($itemId)
-    {
-        throw new \Exception("not implemented");
-    }
 }
