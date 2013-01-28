@@ -26,7 +26,7 @@ interface LineItemInterface extends LineItemCollectionInterface
      *
      * @return null|integer
      */
-    public function getParentId();
+    public function getParentLineId();
 
     /**
      * Sets parent line id, if parent entity is not present.
@@ -36,14 +36,14 @@ interface LineItemInterface extends LineItemCollectionInterface
      *
      * @throws RuntimeException If parent line entity is set
      */
-    public function setParentId($id);
+    public function setParentLineId($id);
 
     /**
      * Get the parent entity
      *
      * @return LineItemInterface|null
      */
-    public function getParent();
+    public function getParentLine();
 
     /**
      * setParent
@@ -51,7 +51,7 @@ interface LineItemInterface extends LineItemCollectionInterface
      * @param LineItemInterface $parent
      * @return LineItemInterface provides fluent interface
      */
-    public function setParent(LineItemInterface $parent = null);
+    public function setParentLine(LineItemInterface $parent = null);
 
     /**
      * Get item
@@ -114,23 +114,37 @@ interface LineItemInterface extends LineItemCollectionInterface
     public function setAddedTime(DateTime $time);
 
     /**
+     * Get the tax associated for this item
+     *
+     * @return float
+     */
+    public function getTax();
+
+    /**
+     * Set the tax associated for this item
+     *
+     * @return LineItemInterface
+     */
+    public function setTax($tax);
+
+    /**
      * Get the extended price for this item
      *
      * @return float
      */
-    public function getExtensionAmount();
+    public function getExtAmount();
 
     /**
     * Get the tax associated for this item
     *
     * @return float
     */
-    public function getTotalTaxAmount();
+    public function getExtTaxAmount();
 
     /**
      * get total line amount
      *
-     * @return void
+     * @return float
      */
     public function getTotalAmount();
 }

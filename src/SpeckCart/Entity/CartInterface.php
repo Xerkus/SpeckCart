@@ -4,7 +4,7 @@ namespace SpeckCart\Entity;
 
 use DateTime;
 
-interface CartInterface extends ItemCollectionInterface
+interface CartInterface extends LineItemCollectionInterface
 {
     /**
      * Get this cart's ID
