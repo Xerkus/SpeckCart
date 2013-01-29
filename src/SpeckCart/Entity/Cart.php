@@ -5,7 +5,7 @@ use \Iterator;
 use \Countable;
 use \DateTime;
 
-class Cart extends AbstractItemCollection implements CartInterface
+class Cart extends AbstractLineItemCollection implements CartInterface
 {
     /**
      * @var int

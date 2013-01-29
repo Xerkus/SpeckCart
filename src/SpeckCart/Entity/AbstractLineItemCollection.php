@@ -6,7 +6,7 @@ use \ArrayIterator;
 use \Countable;
 use \InvalidArgumentException;
 
-abstract class AbstractItemCollection implements LineItemCollectionInterface
+abstract class AbstractLineItemCollection implements LineItemCollectionInterface
 {
     /**
      * @var array
