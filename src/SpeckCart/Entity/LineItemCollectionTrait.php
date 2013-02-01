@@ -1,27 +1,17 @@
 <?php
 namespace SpeckCart\Entity;
 
-use \IteratorAggregate;
-use \ArrayIterator;
-use \Countable;
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
-abstract class AbstractLineItemCollection implements LineItemCollectionInterface
+/**
+ * @see LineItemCollectionInterface Provides interface implementation
+ */
+trait LineItemCollectionTrait
 {
     /**
      * @var array
      */
     protected $lineItems = array();
-
-    /**
-     * constructor
-     *
-     * @param array items already in cart
-     */
-    public function __construct(array $items = array())
-    {
-        $this->setLineItems($items);
-    }
 
     public function addLineItem(LineItemInterface $item)
     {

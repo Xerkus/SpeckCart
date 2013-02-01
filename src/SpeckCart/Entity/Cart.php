@@ -1,12 +1,13 @@
 <?php
 
 namespace SpeckCart\Entity;
-use \Iterator;
-use \Countable;
+
 use \DateTime;
 
-class Cart extends AbstractLineItemCollection implements CartInterface
+class Cart implements CartInterface
 {
+    use LineItemCollectionTrait;
+
     /**
      * @var int
      */

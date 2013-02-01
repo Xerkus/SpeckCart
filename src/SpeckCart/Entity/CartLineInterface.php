@@ -3,8 +3,10 @@
 namespace SpeckCart\Entity;
 
 use DateTime;
+use IteratorAggregate;
+use Countable;
 
-interface CartLineInterface extends LineItemInterface
+interface CartLineInterface extends LineItemInterface, IteratorAggregate, Countable
 {
     /**
      * Get the cart ID this item belongs to

@@ -1,10 +1,7 @@
 <?php
 namespace SpeckCart\Entity;
 
-use \IteratorAggregate;
-use \Countable;
-
-interface LineItemCollectionInterface extends IteratorAggregate, Countable
+interface LineItemCollectionInterface
 {
     public function addLineItem(LineItemInterface $item);
 
