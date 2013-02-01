@@ -7,9 +7,6 @@ use DateTime;
 class CartLine extends AbstractLineItem implements CartLineInterface
 {
     protected $cartId;
-    protected $tax = 0;
-    protected $parentItemId = 0;
-    protected $metadata;
 
     public function getCartId()
     {
