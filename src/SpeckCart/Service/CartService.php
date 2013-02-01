@@ -16,7 +16,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
 {
     protected $sessionManager;
     protected $cartMapper;
-    protected $itemMapper;
+    protected $lineMapper;
     protected $eventManager;
 
     protected $index;
@@ -51,9 +51,9 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
             }
         } else {
             $cart = $this->cartMapper->findById($container->cartId);
-            $items = $this->itemMapper->findByCartId($cart->getCartId());
+            $lines = $this->itemMapper->findByCartId($cart->getCartId());
 
-            $cart->setLineItems($items);
+            $cart->setLineItems($lines);
         }
 
         return $cart;
@@ -64,9 +64,9 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         return $this->cartMapper->findById($cartId);
     }
 
-    public function findItemById($itemId)
+    public function findLineById($lineId)
     {
-        return $this->itemMapper->findById($itemId);
+        return $this->lineMapper->findById($lineId);
     }
 
     public function persist(CartInterface $cart)
@@ -74,30 +74,30 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         return $this->cartMapper->persist($cart);
     }
 
-    public function persistItem(CartLineInterface $item)
+    public function persistLine(CartLineInterface $line)
     {
-        return $this->itemMapper->persist($item);
+        return $this->lineMapper->persist($line);
     }
 
-    public function onAddItem(Event $e)
+    public function onAddLine(Event $e)
     {
-        $this->addItemToCart($e->getCartLine());
+        $this->addLineToCart($e->getCartLine());
         $this->getEventManager()->trigger(CartEvent::EVENT_ADD_LINE_POST, $this, $e->getParams());
     }
 
-    public function addItemToCart(CartLineInterface $item, CartInterface $cart = null)
+    public function addLineToCart(CartLineInterface $line, CartInterface $cart = null)
     {
         if ($cart === null) {
             $cart = $this->getSessionCart(true);
         }
 
-        $item->setCartId($cart->getCartId())
+        $line->setCartId($cart->getCartId())
             ->setAddedTime(new \DateTime());
-        $this->itemMapper->persist($item);
+        $this->lineMapper->persist($line);
 
-        $this->persistCartLineChildren($item->getLineItems(), $item, $cart);
+        $this->persistCartLineChildren($line->getLineItems(), $line, $cart);
 
-        $cart->addLineItem($item);
+        $cart->addLineItem($line);
 
         return $this;
     }
@@ -109,19 +109,19 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
                 ->setAddedTime(new \DateTime())
                 ->setParentLine($parent);
 
-            $this->itemMapper->persist($i);
+            $this->lineMapper->persist($i);
             $this->persistCartLineChildren($i->getLineItems(), $i, $cart);
         }
     }
 
-    public function removeItemFromCart($itemId, CartInterface $cart = null)
+    public function removeLineFromCart($lineId, CartInterface $cart = null)
     {
         if ($cart === null) {
             $cart = $this->getSessionCart();
         }
 
-        $this->itemMapper->deleteById($itemId);
-        $cart->removeItem($itemId);
+        $this->lineMapper->deleteById($lineId);
+        $cart->removeLine($lineId);
 
         return $this;
     }
@@ -129,8 +129,8 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
     public function attachDefaultListeners()
     {
         $events = $this->getEventManager();
-        $events->attach(CartEvent::EVENT_ADD_LINE, array($this, 'onAddItem'));
-        //$events->attach(CartEvent::EVENT_REMOVE_LINE, array($this, 'onRemoveItem'));
+        $events->attach(CartEvent::EVENT_ADD_LINE, array($this, 'onAddLine'));
+        //$events->attach(CartEvent::EVENT_REMOVE_LINE, array($this, 'onRemoveLine'));
     }
 
     public function getSessionManager()
@@ -159,14 +159,14 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         return $this;
     }
 
-    public function getItemMapper()
+    public function getLineMapper()
     {
-        return $this->itemMapper;
+        return $this->lineMapper;
     }
 
-    public function setItemMapper($itemMapper)
+    public function setLineMapper($lineMapper)
     {
-        $this->itemMapper = $itemMapper;
+        $this->lineMapper = $lineMapper;
         return $this;
     }
 

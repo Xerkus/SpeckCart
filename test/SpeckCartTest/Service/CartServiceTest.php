@@ -2,113 +2,113 @@
 
 namespace SpeckCartTest\Service;
 
-use Bootstrap;
 use PHPUnit_Framework_TestCase;
-
-use SpeckCart\Entity\CartItem;
+use Mockery;
+use SpeckCartTest\Bootstrap;
+use SpeckCart\Entity\CartLine;
+use SpeckCart\Entity\Item;
 use SpeckCart\Service\CartEvent;
 use SpeckCart\Service\CartService;
 use SpeckCartTest\TestAsset\SessionManager;
 
 use Zend\Session\Container;
 
-require_once 'SpeckCart/TestAsset/SessionManager.php';
 
 class CartServiceTest extends PHPUnit_Framework_TestCase
 {
-    public function __construct()
-    {
-        $this->cartService = Bootstrap::getServiceManager()->get('SpeckCart\Service\CartService');
-        $this->sessionManager = new SessionManager;
-
-        $this->cartService->setSessionManager($this->sessionManager);
-    }
 
     public function setUp()
     {
-        $this->cartService->getCartMapper()->getDbAdapter()->query('TRUNCATE cart', 'execute');
-        $this->cartService->getCartMapper()->getDbAdapter()->query('TRUNCATE cart_item', 'execute');
+        $this->cartService = new CartService();
+        $this->sessionManager = new SessionManager;
+        $this->cartMapper = Mockery::mock('SpeckCart\\Mapper\\CartMapperInterface');
+
+        $this->cartService->setSessionManager($this->sessionManager);
+        $this->cartService->setCartMapper($this->cartMapper);
         $container = new Container('speckcart', $this->sessionManager);
         unset($container->cartId);
     }
 
+
     public function testInitialCartIsEmpty()
     {
-        $this->assertEquals(0, count($this->cartService->getSessionCart()->getItems()));
-        $this->assertInstanceOf('SpeckCart\Entity\Cart', $this->cartService->getSessionCart());
+        $cart = $this->cartService->getSessionCart();
+        $this->assertInstanceOf('SpeckCart\Entity\Cart', $cart);
+        $this->assertEquals(0, count($cart->getLineItems()));
     }
 
     public function testAddToCart()
     {
-        $item = new CartItem;
-        $return = $this->cartService->addItemToCart($item);
+        // @todo add assertions for calls to mocked mapper
+        $line = new CartLine;
+        $return = $this->cartService->addLineToCart($line);
 
         // check fluent interface
         $this->assertSame($return, $this->cartService);
 
-        // check the item was added
-        $this->assertEquals(1, count($this->cartService->getSessionCart()->getItems()));
+        // check the lineitem was added
+        $this->assertEquals(1, count($this->cartService->getSessionCart()->getLineItems()));
 
         // check that it's the same item still
-        $itemAddedToCart = $this->cartService->getSessionCart()->getItems();
-        $this->assertEquals($item->getCartItemId(), $itemAddedToCart[1]->getCartItemId());
+        $lineAddedToCart = $this->cartService->getSessionCart()->getLineItems();
+        $this->assertSame($line, array_pop($itemAddedToCart));
     }
 
     public function testAddUsingEvent()
     {
+        // @todo add assertions for calls to mocked mapper
         $event = new CartEvent;
-        $event->setCartItem(new CartItem);
+        $event->setCartLine(new CartLine);
 
-        $this->cartService->onAddItem($event);
-        $itemAddedToCart = $this->cartService->getSessionCart()->getItems();
-        $this->assertEquals(1, $itemAddedToCart[1]->getCartItemId());
+        $this->cartService->onAddLine($event);
+
+        // check that it's the same item still
+        $lineAddedToCart = $this->cartService->getSessionCart()->getLineItems();
+        $this->assertSame($line, array_pop($itemAddedToCart));
     }
 
     public function testDuplicateItemsAreNotAdded()
     {
-        $item = new CartItem;
+        $line = new CartLine;
 
-        $this->cartService->addItemToCart($item);
-        $this->cartService->addItemToCart($item);
+        $this->cartService->addLineToCart($line);
+        $this->cartService->addLineToCart($line);
 
-        $this->assertEquals(1, count($this->cartService->getSessionCart()->getItems()));
+        $this->assertEquals(1, count($this->cartService->getSessionCart()->getLineItems()));
     }
 
     public function testRecursiveItems()
     {
-        $item = new CartItem;
-        $item->setDescription("parent");
+        $parent = new CartLine;
+        $child = new CartLine;
 
-        $child = new CartItem;
-        $child->setDescription("child");
+        $parent->addLineItem($child);
 
-        $item->addItem($child);
+        $this->cartService->addLineToCart($parent);
+        $lines = $this->cartService->getSessionCart()->getLineItems();
 
-        $this->cartService->addItemToCart($item);
-        $items = $this->cartService->getSessionCart()->getItems();
+        $parentFromCart = array_pop($lines);
+        $this->assertSame($parentFromCart, $parent);
 
-        $parent = $items[1];
-        $this->assertEquals("parent", $parent->getDescription());
+        $this->assertEquals(1, count($parentFromCart->getLineItems()));
 
-        $children = $parent->getItems();
-        $this->assertEquals(1, count($parent->getItems()));
-
-        $child = $children[2];
-        $this->assertEquals("child", $child->getDescription());
+        $this->assertSame($child, array_pop($parentFromCart->getLineItems()));
     }
 
     public function testRemoveFromCart()
     {
-        $item = new CartItem;
+        // @todo add assertions for calls to mocked mapper
+        $line = new CartLine;
+        $line->setLineItemId(1);
 
-        $return = $this->cartService->addItemToCart($item);
+        $return = $this->cartService->addLineToCart($line);
 
         // ensure it was added first
-        $this->assertEquals(1, count($this->cartService->getSessionCart()->getItems()));
+        $this->assertEquals(1, count($this->cartService->getSessionCart()->getLineItems()));
 
-        $this->cartService->removeItemFromCart(1);
+        $this->cartService->removeLineFromCart(1);
 
         // ensure it was removed
-        $this->assertEquals(0, count($this->cartService->getSessionCart()->getItems()));
+        $this->assertEquals(0, count($this->cartService->getSessionCart()->getLineItems()));
     }
 }

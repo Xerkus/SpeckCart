@@ -1,17 +1,16 @@
 <?php
-
-function renderCartItem($item, $level = 0) {
+$renderCartLine = function ($line, $level = 0) use (&$renderCartLine) {
     $str = str_repeat('-', $level) . ' ';
-    $str .= $item->getDescription() . ' | ' . $item->getQuantity() . ' @ $' . $item->getPrice();
+    $str .= $line->getItem()->getDescription() . ' | ' . $line->getQuantity() . ' @ $' . $line->getPrice();
     $str .= "<br />";
 
-    foreach ($item->getItems() as $c) {
-        $str .= renderCartItem($c, $level+1);
+    foreach ($item->getLineItems() as $c) {
+        $str .= $renderCartLine($c, $level+1);
     }
 
     return $str;
-}
+};
 
-foreach ($cart->getItems() as $i) {
-    echo renderCartItem($i) . "<br />";
+foreach ($cart->getLineItems() as $i) {
+    echo $renderCartLine($i) . "<br />";
 }

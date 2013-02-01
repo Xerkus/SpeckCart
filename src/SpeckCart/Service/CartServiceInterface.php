@@ -14,14 +14,14 @@ interface CartServiceInterface
      * @param CartInterface cart to modify -- default to current session's cart if null
      * @return CartServiceInterface
      */
-    public function addItemToCart(CartLineInterface $item, CartInterface $cart = null);
+    public function addLineToCart(CartLineInterface $line, CartInterface $cart = null);
 
     /**
-     * Remove an item from a cart
+     * Remove an line item from a cart
      *
-     * @param int cart item ID of item to remove
+     * @param int ID of the cart lineitem to remove
      * @param CartInterface cart to remove from -- default to current session's cart if null
      * @return CartServiceInterface
      */
-    public function removeItemFromCart($itemId, CartInterface $cart = null);
+    public function removeLineFromCart($lineId, CartInterface $cart = null);
 }

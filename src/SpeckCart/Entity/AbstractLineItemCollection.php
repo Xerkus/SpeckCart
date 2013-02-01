@@ -27,7 +27,7 @@ abstract class AbstractLineItemCollection implements LineItemCollectionInterface
     {
         // inject this object as parent if it is line item
         if ($this instanceof LineItemInterface) {
-            $item->setParent($this);
+            $item->setParentLine($this);
         }
 
         $hash = spl_object_hash($item);
