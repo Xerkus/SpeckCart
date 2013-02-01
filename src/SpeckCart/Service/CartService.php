@@ -51,7 +51,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
             }
         } else {
             $cart = $this->cartMapper->findById($container->cartId);
-            $lines = $this->itemMapper->findByCartId($cart->getCartId());
+            $lines = $this->lineMapper->findByCartId($cart->getCartId());
 
             $cart->setLineItems($lines);
         }
@@ -159,12 +159,12 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         return $this;
     }
 
-    public function getLineMapper()
+    public function getCartLineMapper()
     {
         return $this->lineMapper;
     }
 
-    public function setLineMapper($lineMapper)
+    public function setCartLineMapper($lineMapper)
     {
         $this->lineMapper = $lineMapper;
         return $this;

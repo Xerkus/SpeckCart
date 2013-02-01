@@ -21,14 +21,34 @@ class CartServiceTest extends PHPUnit_Framework_TestCase
     {
         $this->cartService = new CartService();
         $this->sessionManager = new SessionManager;
-        $this->cartMapper = Mockery::mock('SpeckCart\\Mapper\\CartMapperInterface');
+        $this->cartMapper = Mockery::mock('SpeckCart\\Mapper\\CartMapperInterface')
+            ->shouldReceive('persist')
+            ->once()
+            ->andReturnUsing(
+                function ($cart) {
+                    return $cart->getCartId() ? $cart : $cart->setCartId(1);
+                }
+            )
+            ->mock();
+
+        $this->lineMapper = Mockery::mock('SpeckCart\\Mapper\\CartLineMapperInterface')
+            ->shouldReceive('persist')
+            ->andReturnUsing(
+                function ($line) {
+                    if(!isset($id)) {
+                        static $id = 1;
+                    }
+                    return $line->getLineItemId() ? $line : $line->setLineItemId($id++);
+                }
+            )
+            ->mock();
 
         $this->cartService->setSessionManager($this->sessionManager);
         $this->cartService->setCartMapper($this->cartMapper);
+        $this->cartService->setCartLineMapper($this->lineMapper);
         $container = new Container('speckcart', $this->sessionManager);
         unset($container->cartId);
     }
-
 
     public function testInitialCartIsEmpty()
     {

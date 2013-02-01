@@ -38,7 +38,7 @@ abstract class AbstractLineItemCollection implements LineItemCollectionInterface
 
         // if item have id, remove any other instance with same id to ensure uniqueness
         if ($item->getLineItemId()) {
-            $this->findAndRemoveLineItem($item->getLineItemId());
+            $this->removeLineItem($item->getLineItemId());
         }
 
         $this->lineItems[$hash] = $item;
