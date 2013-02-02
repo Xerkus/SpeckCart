@@ -18,6 +18,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
     protected $cartMapper;
     protected $lineMapper;
     protected $eventManager;
+    protected $sessionCart;
 
     protected $index;
 
@@ -45,15 +46,20 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         if (!isset($container->cartId)) {
             if ($create) {
                 $cart = $this->createSessionCart();
+                $this->sessionCart = $cart;
             } else {
                 $cart = new Cart;
                 $cart->setCreatedTime(new \DateTime());
             }
         } else {
-            $cart = $this->cartMapper->findById($container->cartId);
-            $lines = $this->lineMapper->findByCartId($cart->getCartId());
+            if (!$this->sessionCart) {
+                $cart = $this->cartMapper->findById($container->cartId);
+                $lines = $this->lineMapper->findByCartId($cart->getCartId());
 
-            $cart->setLineItems($lines);
+                $cart->setLineItems($lines);
+                $this->sessionCart = $cart;
+            }
+            $cart = $this->sessionCart;
         }
 
         return $cart;
@@ -121,7 +127,7 @@ class CartService implements CartServiceInterface, EventManagerAwareInterface
         }
 
         $this->lineMapper->deleteById($lineId);
-        $cart->removeLine($lineId);
+        $cart->removeLineItem($lineId);
 
         return $this;
     }

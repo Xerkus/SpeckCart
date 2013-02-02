@@ -71,20 +71,20 @@ class CartServiceTest extends PHPUnit_Framework_TestCase
 
         // check that it's the same item still
         $lineAddedToCart = $this->cartService->getSessionCart()->getLineItems();
-        $this->assertSame($line, array_pop($itemAddedToCart));
+        $this->assertSame($line, array_pop($lineAddedToCart));
     }
 
     public function testAddUsingEvent()
     {
-        // @todo add assertions for calls to mocked mapper
+        $line = new CartLine();
         $event = new CartEvent;
-        $event->setCartLine(new CartLine);
+        $event->setCartLine($line);
 
         $this->cartService->onAddLine($event);
 
         // check that it's the same item still
         $lineAddedToCart = $this->cartService->getSessionCart()->getLineItems();
-        $this->assertSame($line, array_pop($itemAddedToCart));
+        $this->assertSame($line, array_pop($lineAddedToCart));
     }
 
     public function testDuplicateItemsAreNotAdded()
@@ -112,11 +112,14 @@ class CartServiceTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, count($parentFromCart->getLineItems()));
 
-        $this->assertSame($child, array_pop($parentFromCart->getLineItems()));
+        $this->assertContains($child, $parentFromCart->getLineItems(), 'Child line is not the same');
     }
 
     public function testRemoveFromCart()
     {
+        $this->lineMapper->shouldReceive('deleteById')
+            ->with(1)
+            ->andReturn(1);
         // @todo add assertions for calls to mocked mapper
         $line = new CartLine;
         $line->setLineItemId(1);

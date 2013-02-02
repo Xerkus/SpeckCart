@@ -57,7 +57,7 @@ trait LineItemCollectionTrait
         }
 
         foreach($this->lineItems as $key => $item) {
-            if($item == $itemOrItemId) {
+            if($item->getLineItemId() == $itemOrItemId) {
                 unset($this->lineItems[$key]);
             }
         }
