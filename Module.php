@@ -20,7 +20,7 @@ class Module implements AutoloaderProviderInterface
             'factories' => array(
                 'SpeckCart\Service\CartService' => function($sm) {
                     $service = new Service\CartService;
-                    $service->setItemMapper($sm->get('SpeckCart\Mapper\CartItemMapperZendDb'));
+                    $service->setCartLineMapper($sm->get('SpeckCart\Mapper\CartLineMapperZendDb'));
                     $service->setCartMapper($sm->get('SpeckCart\Mapper\CartMapperZendDb'));
                     $service->setEventManager($sm->get('EventManager'));
                     $service->attachDefaultListeners();
@@ -33,7 +33,7 @@ class Module implements AutoloaderProviderInterface
                     return $mapper;
                 },
 
-                'SpeckCart\Mapper\CartItemMapperZendDb' => function($sm) {
+                'SpeckCart\Mapper\CartLineMapperZendDb' => function($sm) {
                     $mapper = new Mapper\CartItemMapperZendDb;
                     $mapper->setDbAdapter($sm->get('speckcart_db_adapter'));
                     return $mapper;
