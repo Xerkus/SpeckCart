@@ -147,6 +147,7 @@ abstract class AbstractLineItem implements LineItemInterface
     public function setPrice($price)
     {
         $this->price = $price;
+        return $this;
     }
 
     /**
@@ -178,7 +179,7 @@ abstract class AbstractLineItem implements LineItemInterface
      */
     public function getAddedTime()
     {
-        return $this->addedtime;
+        return $this->addedTime;
     }
 
     /**

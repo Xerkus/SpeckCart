@@ -6,16 +6,12 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class ItemHydrator implements HydratorInterface
 {
-    protected $nameField        = 'item_name';
-    protected $descriptionField = 'item_description';
-    protected $metadataField    = 'metadata';
-
     public function extract($object)
     {
         $result = array(
-            $this->nameField     => $object->getName(),
-            $this->descriptionField  => $object->getDescription(),
-            $this->metadataField     => serialize($object->getMetadata()),
+            'item_name'        => $object->getName(),
+            'item_description' => $object->getDescription(),
+            'item_metadata'    => serialize($object->getMetadata()),
         );
 
         return $result;
@@ -23,9 +19,9 @@ class ItemHydrator implements HydratorInterface
 
     public function hydrate(array $data, $object)
     {
-        $object->setName($data[$this->nameField])
-            ->setDescription($data[$this->descriptionField])
-            ->setMetadata(unserialize($data[$this->metadataField]));
+        $object->setName($data['item_name'])
+            ->setDescription($data['item_description'])
+            ->setMetadata(unserialize($data['item_metadata']));
 
         return $object;
     }

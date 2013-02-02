@@ -6,7 +6,7 @@ class Item implements ItemInterface
 {
     protected $name;
     protected $decription;
-    protected $metadata;
+    protected $metadata = array();
 
     public function getName()
     {

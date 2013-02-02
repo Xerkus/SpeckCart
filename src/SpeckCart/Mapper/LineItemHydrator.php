@@ -6,25 +6,22 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class LineItemHydrator implements HydratorInterface
 {
-    protected $lineIdField       = 'line_id';
-    protected $priceField        = 'price';
-    protected $quantityField     = 'quantity';
-    protected $taxField          = 'tax';
-    protected $addedTimeField    = 'added_time';
-    protected $parentLineIdField = 'parent_line_id';
-
     public function extract($object)
     {
         $result = array(
-            $this->priceField        => $object->getPrice() ?: 0.00,
-            $this->quantityField     => $object->getQuantity() ?: 0,
-            $this->taxField          => $object->getTax() ?: 0,
-            $this->addedTimeField    => $object->getAddedTime()->format('c'),
-            $this->parentLineIdField => $object->getParentLineId(),
+            'price'          => $object->getPrice() ?: 0.00,
+            'quantity'       => $object->getQuantity() ?: 0,
+            'tax'            => $object->getTax() ?: 0,
+            'parent_line_id' => $object->getParentLineId(),
         );
 
         if ($object->getLineItemId() !== null) {
-            $result[$this->lineId] = $object->getLineItemId();
+            $result['line_id'] = $object->getLineItemId();
+        }
+
+        if ($object->getAddedTime() !== null) {
+            $result['added_time'] = $object->getAddedTime()->format('c');
+
         }
 
         return $result;
@@ -32,12 +29,16 @@ class LineItemHydrator implements HydratorInterface
 
     public function hydrate(array $data, $object)
     {
-        $object->setLineItemId($data[$this->lineIdField])
-            ->setPrice($data[$this->priceField])
-            ->setQuantity($data[$this->quantityField])
-            ->setTax($data[$this->taxField])
-            ->setAddedTime(new \DateTime($data[$this->addedTimeField]))
-            ->setParentLineId($data[$this->parentLineIdField]);
+        if (isset($data['line_id'])) {
+            $object->setLineItemId($data['line_id']);
+        }
+        if (isset($data['added_time'])) {
+            $object->setAddedTime(new \DateTime($data['added_time']));
+        }
+        $object->setPrice($data['price'])
+            ->setQuantity($data['quantity'])
+            ->setTax($data['tax'])
+            ->setParentLineId($data['parent_line_id']);
 
         return $object;
     }
