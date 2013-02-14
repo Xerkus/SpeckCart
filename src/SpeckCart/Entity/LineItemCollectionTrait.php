@@ -1,6 +1,7 @@
 <?php
 namespace SpeckCart\Entity;
 
+use ArrayIterator;
 use InvalidArgumentException;
 
 /**
